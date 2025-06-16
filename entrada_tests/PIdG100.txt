@@ -1,0 +1,18 @@
+var int a ;
+var  int   b  ;
+var boolean bbb ;
+a = 3;
+b=a					    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
+if (a == b) b = 1;
+
+var int aaaa;
+var string ssss;
+var boolean bbbb;
+
+
+aaaa = 55  ; 
+
+
+var int  variable_ ;a = a + b;
+output a ;
+output b;

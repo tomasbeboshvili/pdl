@@ -1,0 +1,16 @@
+<PRint, >
+<id, 1>
+<igual, >
+<entero, 10>
+<puntoComa, >
+<PRif, >
+<parenIzq, >
+<id, 1>
+<opIgual, >
+<entero, 10>
+<parenDcha, >
+<llaveIzq, >
+<PRoutput, >
+<cadena, "Hola">
+<puntoComa, >
+<llaveDcha, >

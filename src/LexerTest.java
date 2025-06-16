@@ -15,7 +15,7 @@ public class LexerTest {
 
             // Crear lexer y obtener tokens
             Lexer lexer = new Lexer(input.toString());
-            List<Token> tokens = lexer.scanTokens();
+            List<Token> tokens = lexer.tokenize(); // <- método corregido
 
             // Escribir tokens en archivo de salida
             BufferedWriter writer = new BufferedWriter(new FileWriter("salida.txt"));
@@ -25,12 +25,12 @@ public class LexerTest {
             }
             writer.close();
 
-            System.out.println("Análisis completado. Revisa el archivo salida.txt.");
+            System.out.println("✅ Análisis completado. Revisa el archivo salida.txt.");
 
         } catch (IOException e) {
-            System.err.println("Error de archivo: " + e.getMessage());
+            System.err.println("[ERROR] Archivo: " + e.getMessage());
         } catch (RuntimeException e) {
-            System.err.println("Error de análisis: " + e.getMessage());
+            System.err.println("[ERROR] Léxico: " + e.getMessage());
         }
     }
 }
