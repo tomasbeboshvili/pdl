@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.regex.*;
 
 public class Lexer {
     private final String input;
