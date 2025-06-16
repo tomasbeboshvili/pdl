@@ -1,0 +1,18 @@
+<PRint>
+<id, x>
+<igual>
+<entero, 10>
+<puntoComa>
+<PRif>
+<parenIzq>
+<id, x>
+<opIgual>
+<entero, 10>
+<parenDcha>
+<llaveIzq>
+<PRoutput>
+<id, ha>
+<cadena, Hola>
+<puntoComa>
+<llaveDcha>
+<finFich>
