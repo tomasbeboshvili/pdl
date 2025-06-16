@@ -8,7 +8,7 @@ public class Lexer {
     private int line = 1;
 	private int column = 1;
 	private int tokenStartColumn = 1;
-	private List<String> SymbolTable = new ArrayList<>();
+	private List<Symbol> SymbolTable = new ArrayList<>();
 
     private static final Map<String, TokenType> keywords = new HashMap<>();
     static {
@@ -31,7 +31,7 @@ public class Lexer {
         this.input = input;
     }
 
-	public List<String> getSymbolTable() {
+	public List<Symbol> getSymbolTable() {
 		return SymbolTable;
 	}
 
@@ -134,9 +134,18 @@ public class Lexer {
         String lexeme = input.substring(start, pos);
         TokenType type = keywords.getOrDefault(lexeme, TokenType.id);
         addToken(type, lexeme);
-		if (type == TokenType.id && !SymbolTable.contains(lexeme)) {
-			SymbolTable.add(lexeme); // Agregar a la tabla de símbolos si es un identificador nuevo
+		if (type == TokenType.id && !findSymbol(lexeme)) {
+			SymbolTable.add(new Symbol(lexeme)); // Agregar a la tabla de símbolos si es un identificador nuevo
 		}
+    }
+
+    private boolean findSymbol(String lexeme) {
+        for (Symbol symbol : SymbolTable) {
+            if (symbol.getLexema().equals(lexeme)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void lexNumber() {
