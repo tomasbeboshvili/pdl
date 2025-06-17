@@ -17,7 +17,7 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-
+/* 
     public ASTNode parseAST() {
         ASTNode root = new ASTNode("P");
         while (!isAtEnd()) {
@@ -27,6 +27,25 @@ public class Parser {
             } else {
                 reglasAplicadas.add(1); // P -> B P
                 root.addChild(B());
+            }
+        }
+        reglasAplicadas.add(3); // P -> λ
+        return root;
+    }
+        */
+        public ASTNode parseAST() {
+        ASTNode root = new ASTNode("P");
+        while (!isAtEnd()) {
+            if (check(TokenType.PRif) || check(TokenType.PRvar) || check(TokenType.PRfor) || check(TokenType.id) ||
+                check(TokenType.PRoutput) || check(TokenType.PRinput) || check(TokenType.PRreturn)){
+                    root.addChild(B());
+            }
+            else if (check(TokenType.PRfun)) {
+                reglasAplicadas.add(2); // P -> F P
+                root.addChild(F());
+            } else {
+                error(peek(), "no se esperaba este token");
+                return new ASTNode("tipo_error");
             }
         }
         reglasAplicadas.add(3); // P -> λ
@@ -49,10 +68,7 @@ public class Parser {
         consume(TokenType.PRfun, "Se esperaba 'function'");
         node.addChild(new ASTNode("function"));
         node.addChild(F2());
-        Token id = consume(TokenType.id, "Se esperaba nombre de función");
-        reglasAplicadas.add(49);
-        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
-        consume(TokenType.parenIzq, "Falta '('");
+        node.addChild(F3());
         node.addChild(F4());
         consume(TokenType.llaveIzq, "Falta '{'");
         node.addChild(C());
@@ -145,8 +161,14 @@ public class Parser {
 
     private ASTNode B() {
         ASTNode node = new ASTNode("B");
-        if (match(TokenType.PRvar)) {
-            reglasAplicadas.add(36);
+        if (match(TokenType.PRif)){
+            reglasAplicadas.add(35);    // B -> if ( E ) S
+            consume(TokenType.parenIzq, "Se esperaba un '('");
+            node.addChild(E());
+            consume(TokenType.parenDcha, "Se esperaba un ')'");
+            node.addChild(S());
+        } else if (match(TokenType.PRvar)) {
+            reglasAplicadas.add(36);    // B -> var T id ;
             node.addChild(new ASTNode("var"));
             ASTNode tipo = T();
             node.addChild(tipo);
@@ -154,11 +176,23 @@ public class Parser {
             node.addChild(new ASTNode("id(" + id.lexeme + ")"));
             Symbol s = new Symbol(id.lexeme);
             s.setTipo(tipo.getLabel());
-            tablaSimbolos.add(s);
+            tablaSimbolos.add(s);  
             consume(TokenType.puntoComa, "Falta ';'");
+        } else if (match(TokenType.PRfor)){
+            reglasAplicadas.add(38);    // B -> for ( F1 ; E ; A ) { C }
+            consume(TokenType.parenIzq, "Se esperaba un '('");
+            node.addChild(F1());
+            consume(TokenType.puntoComa, "Se esperaba un ';'");
+            node.addChild(E());
+            consume(TokenType.puntoComa, "Se esperaba un ';'");
+            node.addChild(A());
+            consume(TokenType.parenDcha, "Se esperaba un ')'");
+            consume(TokenType.llaveIzq, "Falta '{'");
+            node.addChild(C());
+            consume(TokenType.llaveDcha, "Falta '}'");
         } else {
-            reglasAplicadas.add(37);
-            node.addChild(new ASTNode("sentencia"));
+            reglasAplicadas.add(37);    // B -> S
+            node.addChild(S());
         }
         return node;
     }
@@ -321,16 +355,16 @@ private ASTNode V() {
         node.addChild(E());
         consume(TokenType.parenDcha, "Falta ')'");
     } else if (match(TokenType.entero)) {
-        reglasAplicadas.add(15);
+        reglasAplicadas.add(15);    // V -> ent
         node.addChild(new ASTNode("ent"));
     } else if (match(TokenType.cadena)) {
-        reglasAplicadas.add(16);
+        reglasAplicadas.add(16);    // V -> cad
         node.addChild(new ASTNode("cad"));
     } else if (match(TokenType.True)) {
-        reglasAplicadas.add(17);
+        reglasAplicadas.add(17);    // V -> true
         node.addChild(new ASTNode("true"));
     } else if (match(TokenType.False)) {
-        reglasAplicadas.add(18);
+        reglasAplicadas.add(18);    // V -> false
         node.addChild(new ASTNode("false"));
     } else {
         error(peek(), "Expresión no válida");
@@ -341,7 +375,7 @@ private ASTNode V() {
 private ASTNode V1() {
     ASTNode node = new ASTNode("V1");
     if (match(TokenType.opIncremen)) {
-        reglasAplicadas.add(19);
+        reglasAplicadas.add(19);    // V1 -> ++
         node.addChild(new ASTNode("++"));
     } else if (match(TokenType.parenIzq)) {
         reglasAplicadas.add(20);
@@ -349,7 +383,7 @@ private ASTNode V1() {
         node.addChild(L());
         consume(TokenType.parenDcha, "Falta ')'");
     } else {
-        reglasAplicadas.add(21);
+        reglasAplicadas.add(21);        // V1 -> λ
     }
     return node;
 }
@@ -394,6 +428,7 @@ private ASTNode S() {
         } else {
             reglasAplicadas.add(26); // S -> F1
             node.addChild(F1());
+            consume(TokenType.puntoComa, "falta ';'");
         }
     } else if (match(TokenType.PRoutput)) {
         reglasAplicadas.add(28);
@@ -431,12 +466,11 @@ private ASTNode X() {
 private ASTNode F1() {
     ASTNode node = new ASTNode("F1");
     if (match(TokenType.id)) {
-        reglasAplicadas.add(33);
+        reglasAplicadas.add(33);    //F1 -> id = E
         Token id = previous();
         node.addChild(new ASTNode("id(" + id.lexeme + ")"));
         consume(TokenType.igual, "Falta '='");
         node.addChild(E());
-        consume(TokenType.puntoComa, "Falta ';'");
     } else {
         reglasAplicadas.add(34);
     }
