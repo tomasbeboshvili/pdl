@@ -1,3 +1,4 @@
+package Lexico;
 public enum TokenType {
     // Palabras reservadas
     PRboolean, PRfor, PRfun, PRif, PRinput, PRint, PRoutput, PRreturn, PRstring, PRvar, PRvoid,

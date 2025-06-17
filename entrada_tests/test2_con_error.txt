@@ -1,7 +1,0 @@
-var int x;  
-var int y;  
-
-x = 10; y = x + 5;  
-if (x == y) !{  
-    output y; 
- }

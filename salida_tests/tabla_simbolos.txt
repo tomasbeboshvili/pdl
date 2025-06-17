@@ -1,0 +1,5 @@
+Tabla de Símbolos:
+id: 1 | Symbol{lexema='a', Tipo='', inf=0, sup=0, nParametros=0, tipoParametros=, tipoDevuelto=''}
+id: 2 | Symbol{lexema='b', Tipo='', inf=0, sup=0, nParametros=0, tipoParametros=, tipoDevuelto=''}
+id: 3 | Symbol{lexema='bbb', Tipo='', inf=0, sup=0, nParametros=0, tipoParametros=, tipoDevuelto=''}
+id: 4 | Symbol{lexema='c', Tipo='', inf=0, sup=0, nParametros=0, tipoParametros=, tipoDevuelto=''}

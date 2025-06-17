@@ -1,3 +1,4 @@
+package Lexico;
 import java.util.*;
 
 public class Lexer {
@@ -33,6 +34,19 @@ public class Lexer {
 	public List<Symbol> getSymbolTable() {
 		return SymbolTable;
 	}
+
+	public String printSymbolTable() {
+		StringBuilder sb = new StringBuilder();
+		int cont =1;
+		sb.append("Tabla de Símbolos:\n");
+		for (Symbol symbol : SymbolTable) {
+			sb.append("id: ").append(cont++).append(" | ");
+			sb.append(symbol.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
 
     public List<Token> tokenize() {
         while (pos < input.length()) {
