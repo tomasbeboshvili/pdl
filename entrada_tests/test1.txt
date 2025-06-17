@@ -2,7 +2,7 @@ var int a ;
 var  int   b  ;
 var boolean bbb ;
 a = 3;
-b=a					    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
+b=a	;				    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
 var  boolean  c  
 ;
 

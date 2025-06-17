@@ -241,4 +241,233 @@ public class Parser {
     public String getErrores() {
         return errores.toString();
     }
+	// ... (todo tu código anterior hasta el final del método B()) permanece igual
+
+// Añadir desde aquí las reglas faltantes
+
+private ASTNode E() {
+    reglasAplicadas.add(4); // E -> R E1
+    ASTNode node = new ASTNode("E");
+    node.addChild(R());
+    node.addChild(E1());
+    return node;
+}
+
+private ASTNode E1() {
+    ASTNode node = new ASTNode("E1");
+    if (match(TokenType.opAnd)) {
+        reglasAplicadas.add(5); // E1 -> && R E1
+        node.addChild(new ASTNode("&&"));
+        node.addChild(R());
+        node.addChild(E1());
+    } else {
+        reglasAplicadas.add(6); // E1 -> λ
+    }
+    return node;
+}
+
+private ASTNode R() {
+    reglasAplicadas.add(7); // R -> U R1
+    ASTNode node = new ASTNode("R");
+    node.addChild(U());
+    node.addChild(R1());
+    return node;
+}
+
+private ASTNode R1() {
+    ASTNode node = new ASTNode("R1");
+    if (match(TokenType.opIgual)) {
+        reglasAplicadas.add(8); // R1 -> == U R1
+        node.addChild(new ASTNode("=="));
+        node.addChild(U());
+        node.addChild(R1());
+    } else {
+        reglasAplicadas.add(9); // R1 -> λ
+    }
+    return node;
+}
+
+private ASTNode U() {
+    reglasAplicadas.add(10); // U -> V U1
+    ASTNode node = new ASTNode("U");
+    node.addChild(V());
+    node.addChild(U1());
+    return node;
+}
+
+private ASTNode U1() {
+    ASTNode node = new ASTNode("U1");
+    if (match(TokenType.opSuma)) {
+        reglasAplicadas.add(11); // U1 -> + V U1
+        node.addChild(new ASTNode("+"));
+        node.addChild(V());
+        node.addChild(U1());
+    } else {
+        reglasAplicadas.add(12); // U1 -> λ
+    }
+    return node;
+}
+
+private ASTNode V() {
+    ASTNode node = new ASTNode("V");
+    if (match(TokenType.id)) {
+        reglasAplicadas.add(13); // V -> id V1
+        Token id = previous();
+        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+        node.addChild(V1());
+    } else if (match(TokenType.parenIzq)) {
+        reglasAplicadas.add(14); // V -> ( E )
+        node.addChild(new ASTNode("("));
+        node.addChild(E());
+        consume(TokenType.parenDcha, "Falta ')'");
+    } else if (match(TokenType.entero)) {
+        reglasAplicadas.add(15);
+        node.addChild(new ASTNode("ent"));
+    } else if (match(TokenType.cadena)) {
+        reglasAplicadas.add(16);
+        node.addChild(new ASTNode("cad"));
+    } else if (match(TokenType.True)) {
+        reglasAplicadas.add(17);
+        node.addChild(new ASTNode("true"));
+    } else if (match(TokenType.False)) {
+        reglasAplicadas.add(18);
+        node.addChild(new ASTNode("false"));
+    } else {
+        error(peek(), "Expresión no válida");
+    }
+    return node;
+}
+
+private ASTNode V1() {
+    ASTNode node = new ASTNode("V1");
+    if (match(TokenType.opIncremen)) {
+        reglasAplicadas.add(19);
+        node.addChild(new ASTNode("++"));
+    } else if (match(TokenType.parenIzq)) {
+        reglasAplicadas.add(20);
+        node.addChild(new ASTNode("("));
+        node.addChild(L());
+        consume(TokenType.parenDcha, "Falta ')'");
+    } else {
+        reglasAplicadas.add(21);
+    }
+    return node;
+}
+
+private ASTNode L() {
+    ASTNode node = new ASTNode("L");
+    if (check(TokenType.id) || check(TokenType.entero) || check(TokenType.cadena)
+        || check(TokenType.True) || check(TokenType.False) || check(TokenType.parenIzq)) {
+        reglasAplicadas.add(22);
+        node.addChild(E());
+        node.addChild(Q());
+    } else {
+        reglasAplicadas.add(23);
+    }
+    return node;
+}
+
+private ASTNode Q() {
+    ASTNode node = new ASTNode("Q");
+    if (match(TokenType.coma)) {
+        reglasAplicadas.add(24);
+        node.addChild(new ASTNode(","));
+        node.addChild(E());
+        node.addChild(Q());
+    } else {
+        reglasAplicadas.add(25);
+    }
+    return node;
+}
+
+private ASTNode S() {
+    ASTNode node = new ASTNode("S");
+    if (check(TokenType.id)) {
+        if (tokens.get(current + 1).type == TokenType.parenIzq) {
+            reglasAplicadas.add(27); // S -> id ( L ) ;
+            Token id = advance();
+            node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+            consume(TokenType.parenIzq, "Falta '('");
+            node.addChild(L());
+            consume(TokenType.parenDcha, "Falta ')'");
+            consume(TokenType.puntoComa, "Falta ';'");
+        } else {
+            reglasAplicadas.add(26); // S -> F1
+            node.addChild(F1());
+        }
+    } else if (match(TokenType.PRoutput)) {
+        reglasAplicadas.add(28);
+        node.addChild(new ASTNode("output"));
+        node.addChild(E());
+        consume(TokenType.puntoComa, "Falta ';'");
+    } else if (match(TokenType.PRinput)) {
+        reglasAplicadas.add(29);
+        node.addChild(new ASTNode("input"));
+        Token id = consume(TokenType.id, "Falta identificador");
+        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+        consume(TokenType.puntoComa, "Falta ';'");
+    } else if (match(TokenType.PRreturn)) {
+        reglasAplicadas.add(30);
+        node.addChild(new ASTNode("return"));
+        node.addChild(X());
+        consume(TokenType.puntoComa, "Falta ';'");
+    } else {
+        error(peek(), "Sentencia no válida");
+    }
+    return node;
+}
+
+private ASTNode X() {
+    ASTNode node = new ASTNode("X");
+    if (!check(TokenType.puntoComa)) {
+        reglasAplicadas.add(31);
+        node.addChild(E());
+    } else {
+        reglasAplicadas.add(32);
+    }
+    return node;
+}
+
+private ASTNode F1() {
+    ASTNode node = new ASTNode("F1");
+    if (match(TokenType.id)) {
+        reglasAplicadas.add(33);
+        Token id = previous();
+        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+        consume(TokenType.igual, "Falta '='");
+        node.addChild(E());
+        consume(TokenType.puntoComa, "Falta ';'");
+    } else {
+        reglasAplicadas.add(34);
+    }
+    return node;
+}
+
+private ASTNode A() {
+    ASTNode node = new ASTNode("A");
+    if (check(TokenType.id)) {
+        if (tokens.get(current + 1).type == TokenType.igual) {
+            reglasAplicadas.add(43);
+            node.addChild(F1());
+        } else if (tokens.get(current + 1).type == TokenType.opIncremen) {
+            reglasAplicadas.add(44);
+            Token id = advance();
+            node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+            advance(); // consume ++
+            node.addChild(new ASTNode("++"));
+        }
+    } else {
+        reglasAplicadas.add(42);
+    }
+    return node;
+}
+
+private ASTNode F3() {
+    reglasAplicadas.add(49);
+    ASTNode node = new ASTNode("F3");
+    Token id = consume(TokenType.id, "Se esperaba identificador");
+    node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+    return node;
+}
+
 }
