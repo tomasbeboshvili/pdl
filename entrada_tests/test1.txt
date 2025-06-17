@@ -1,2 +1,15 @@
-var int x;
-var boolean y;
+var int a ;
+var  int   b  ;
+var boolean bbb ;
+a = 3;
+b=a					    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
+var  boolean  c  
+;
+
+c = a == b;
+if (c) b = 1;
+c = b == a;
+if (c) b = 4;
+a = a + b;
+output a ;
+output b;

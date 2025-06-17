@@ -16,30 +16,25 @@ public class ASTNode {
         children.add(child);
     }
 
-    public String toDot(String parentName, int[] counter) {
-        String nodeName = "n" + counter[0]++;
-        StringBuilder sb = new StringBuilder();
-        sb.append(nodeName).append(" [label=\"").append(label).append("\"];");
-
-        if (parentName != null) {
-            sb.append(parentName).append(" -> ").append(nodeName).append(";");
-        }
-
-        for (ASTNode child : children) {
-            sb.append(child.toDot(nodeName, counter));
-        }
-
-        return sb.toString();
+    public String getLabel() {
+        return label;
     }
-	public String getLabel() {
-		return label;
-	}
-	
 
     public String toDotFile() {
-        StringBuilder sb = new StringBuilder("digraph AST {");
-        sb.append(toDot(null, new int[]{0}));
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph AST {\n");
+        toDot(sb, new int[]{0});
         sb.append("}");
         return sb.toString();
+    }
+
+    private int toDot(StringBuilder sb, int[] id) {
+        int myId = id[0]++;
+        sb.append("n").append(myId).append(" [label=\"").append(label).append("\"];\n");
+        for (ASTNode child : children) {
+            int childId = child.toDot(sb, id);
+            sb.append("n").append(myId).append(" -> n").append(childId).append(";\n");
+        }
+        return myId;
     }
 }

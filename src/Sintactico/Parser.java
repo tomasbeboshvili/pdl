@@ -21,13 +21,15 @@ public class Parser {
     public ASTNode parseAST() {
         ASTNode root = new ASTNode("P");
         while (!isAtEnd()) {
-            reglasAplicadas.add(1); // P → B/F P
             if (check(TokenType.PRfun)) {
+                reglasAplicadas.add(2); // P -> F P
                 root.addChild(F());
             } else {
+                reglasAplicadas.add(1); // P -> B P
                 root.addChild(B());
             }
         }
+        reglasAplicadas.add(3); // P -> λ
         return root;
     }
 
@@ -42,18 +44,16 @@ public class Parser {
     }
 
     private ASTNode F() {
-        reglasAplicadas.add(2); // F → function tipo id (...) {...}
+        reglasAplicadas.add(47);
         ASTNode node = new ASTNode("F");
         consume(TokenType.PRfun, "Se esperaba 'function'");
         node.addChild(new ASTNode("function"));
         node.addChild(F2());
         Token id = consume(TokenType.id, "Se esperaba nombre de función");
+        reglasAplicadas.add(49);
         node.addChild(new ASTNode("id(" + id.lexeme + ")"));
         consume(TokenType.parenIzq, "Falta '('");
-        if (!check(TokenType.parenDcha)) {
-            node.addChild(Z());
-        }
-        consume(TokenType.parenDcha, "Falta ')'");
+        node.addChild(F4());
         consume(TokenType.llaveIzq, "Falta '{'");
         node.addChild(C());
         consume(TokenType.llaveDcha, "Falta '}'");
@@ -61,64 +61,92 @@ public class Parser {
     }
 
     private ASTNode F2() {
-        if (match(TokenType.PRint)) {
-            reglasAplicadas.add(3); return new ASTNode("int");
+        reglasAplicadas.add(48);
+        return H();
+    }
+
+    private ASTNode F4() {
+        reglasAplicadas.add(50);
+        ASTNode node = new ASTNode("F4");
+        consume(TokenType.parenIzq, "Falta '('");
+        if (check(TokenType.PRint) || check(TokenType.PRboolean) || check(TokenType.PRstring)) {
+            node.addChild(Z());
+        } else if (match(TokenType.PRvoid)) {
+            reglasAplicadas.add(54);
+            node.addChild(new ASTNode("void"));
+        } else {
+            reglasAplicadas.add(56);
         }
-        if (match(TokenType.PRboolean)) {
-            reglasAplicadas.add(4); return new ASTNode("boolean");
+        consume(TokenType.parenDcha, "Falta ')'");
+        return node;
+    }
+
+    private ASTNode H() {
+        if (check(TokenType.PRint) || check(TokenType.PRboolean) || check(TokenType.PRstring)) {
+            reglasAplicadas.add(51);
+            return T();
+        } else if (match(TokenType.PRvoid)) {
+            reglasAplicadas.add(52);
+            return new ASTNode("void");
+        } else {
+            error(peek(), "Se esperaba tipo o void");
+            return new ASTNode("tipo_error");
         }
-        if (match(TokenType.PRstring)) {
-            reglasAplicadas.add(5); return new ASTNode("string");
-        }
-        if (match(TokenType.PRvoid)) {
-            reglasAplicadas.add(6); return new ASTNode("void");
-        }
-        error(peek(), "Tipo de retorno no válido");
-        return new ASTNode("tipo_error");
     }
 
     private ASTNode Z() {
-        reglasAplicadas.add(7); // Z → T id (, T id)*
+        reglasAplicadas.add(53);
         ASTNode node = new ASTNode("Z");
         node.addChild(T());
         Token id = consume(TokenType.id, "Falta identificador");
         node.addChild(new ASTNode("id(" + id.lexeme + ")"));
-        while (match(TokenType.coma)) {
+        node.addChild(K());
+        return node;
+    }
+
+    private ASTNode K() {
+        ASTNode node = new ASTNode("K");
+        if (match(TokenType.coma)) {
+            reglasAplicadas.add(55);
             node.addChild(new ASTNode(","));
             node.addChild(T());
-            Token id2 = consume(TokenType.id, "Falta identificador");
-            node.addChild(new ASTNode("id(" + id2.lexeme + ")"));
+            Token id = consume(TokenType.id, "Falta identificador");
+            node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+            node.addChild(K());
+        } else {
+            reglasAplicadas.add(56);
         }
         return node;
     }
 
     private ASTNode T() {
         if (match(TokenType.PRint)) {
-            reglasAplicadas.add(8); return new ASTNode("int");
+            reglasAplicadas.add(39); return new ASTNode("int");
         }
         if (match(TokenType.PRboolean)) {
-            reglasAplicadas.add(9); return new ASTNode("boolean");
+            reglasAplicadas.add(40); return new ASTNode("boolean");
         }
         if (match(TokenType.PRstring)) {
-            reglasAplicadas.add(10); return new ASTNode("string");
+            reglasAplicadas.add(41); return new ASTNode("string");
         }
         error(peek(), "Tipo no válido");
         return new ASTNode("tipo_error");
     }
 
     private ASTNode C() {
-        reglasAplicadas.add(11); // C → B C | ε
         ASTNode node = new ASTNode("C");
-        while (!check(TokenType.llaveDcha) && !isAtEnd()) {
+        while (!check(TokenType.llaveDcha) && !check(TokenType.finFich) && !hayErrores) {
             node.addChild(B());
+            reglasAplicadas.add(45); // C -> B C
         }
+        reglasAplicadas.add(46); // C -> λ
         return node;
     }
 
     private ASTNode B() {
         ASTNode node = new ASTNode("B");
         if (match(TokenType.PRvar)) {
-            reglasAplicadas.add(12); // B → var T id ;
+            reglasAplicadas.add(36);
             node.addChild(new ASTNode("var"));
             ASTNode tipo = T();
             node.addChild(tipo);
@@ -129,7 +157,7 @@ public class Parser {
             tablaSimbolos.add(s);
             consume(TokenType.puntoComa, "Falta ';'");
         } else {
-            reglasAplicadas.add(13); // B → sentencia
+            reglasAplicadas.add(37);
             node.addChild(new ASTNode("sentencia"));
         }
         return node;
@@ -159,12 +187,12 @@ public class Parser {
     }
 
     public String mapTipo(String tipo) {
-        switch (tipo.toLowerCase()) {
-            case "int": return "entero";
-            case "boolean": return "logico";
-            case "string": return "cadena";
-            default: return "-";
-        }
+        return switch (tipo.toLowerCase()) {
+            case "int" -> "entero";
+            case "boolean" -> "logico";
+            case "string" -> "cadena";
+            default -> "-";
+        };
     }
 
     private boolean match(TokenType... types) {
