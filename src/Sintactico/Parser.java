@@ -38,6 +38,7 @@ public class Parser {
         while (!isAtEnd()) {
             if (check(TokenType.PRif) || check(TokenType.PRvar) || check(TokenType.PRfor) || check(TokenType.id) ||
                 check(TokenType.PRoutput) || check(TokenType.PRinput) || check(TokenType.PRreturn)){
+                    reglasAplicadas.add(1);     // P -> B P
                     root.addChild(B());
             }
             else if (check(TokenType.PRfun)) {
