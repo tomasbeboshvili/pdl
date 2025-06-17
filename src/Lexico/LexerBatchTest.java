@@ -4,6 +4,14 @@ import java.util.*;
 
 public class LexerBatchTest {
     public static void main(String[] args) {
+		try {
+            // 🧹 Limpiar carpeta de salida
+            File outputDir = new File("salida_tests");
+            if (outputDir.exists() && outputDir.isDirectory()) {
+                for (File file : outputDir.listFiles()) {
+                    if (!file.isDirectory()) file.delete();
+                }
+            }
 		File tablaSimbolos= new File("tabla_simbolos.txt");
         File entradaFolder = new File("entrada_tests");
         File salidaFolder = new File("salida_tests");
@@ -59,7 +67,7 @@ public class LexerBatchTest {
 				writerRaw.close();
 				writerTokens.close();
 				
-				BufferedWriter writerSymbol = new BufferedWriter(new FileWriter(new File(salidaFolder, tablaSimbolos.getName())));
+				BufferedWriter writerSymbol = new BufferedWriter(new FileWriter(new File(salidaFolder, nombre + tablaSimbolos.getName())));
 				writerSymbol.write(lexer.printSymbolTable());
 				writerSymbol.close();
 
@@ -69,5 +77,9 @@ public class LexerBatchTest {
             }
         }
         System.out.println("✅ Todos los tests han sido procesados.");
-    }
+    }	
+		catch (Exception e) {
+			System.err.println("❌ Error durante la ejecución: " + e.getMessage());
+		}
+	}
 }

@@ -1,0 +1,9 @@
+<PRvar, var> en línea 1, columnas 1-3
+<PRint, int> en línea 1, columnas 5-7
+<id, x> en línea 1, columnas 9-9
+<puntoComa, ;> en línea 1, columnas 9-9
+<PRvar, var> en línea 2, columnas 2-4
+<PRboolean, boolean> en línea 2, columnas 6-12
+<id, y> en línea 2, columnas 14-14
+<puntoComa, ;> en línea 2, columnas 14-14
+<finFich, > en línea 3, columnas 2-2

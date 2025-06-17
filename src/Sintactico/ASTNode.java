@@ -31,6 +31,10 @@ public class ASTNode {
 
         return sb.toString();
     }
+	public String getLabel() {
+		return label;
+	}
+	
 
     public String toDotFile() {
         StringBuilder sb = new StringBuilder("digraph AST {");

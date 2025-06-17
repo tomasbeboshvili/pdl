@@ -1,0 +1,1 @@
+digraph AST {n0 [label="P"];n1 [label="B"];n0 -> n1;n2 [label="var"];n1 -> n2;n3 [label="int"];n1 -> n3;n4 [label="id(x)"];n1 -> n4;n5 [label="B"];n0 -> n5;n6 [label="var"];n5 -> n6;n7 [label="boolean"];n5 -> n7;n8 [label="id(y)"];n5 -> n8;}
