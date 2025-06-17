@@ -22,7 +22,7 @@ public class LexerBatchTest {
         for (File testFile : testFiles) {
             String nombre = testFile.getName();
             String nombreSalida = nombre.replace(".txt", "_out.txt");
-            File outputFile = new File(salidaFolder, nombreSalida);
+            //File outputFile = new File(salidaFolder, nombreSalida);
 
 
             System.out.println("Procesando: " + nombre);

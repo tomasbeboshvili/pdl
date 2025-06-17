@@ -1,6 +1,9 @@
-package Sintactico;
-import java.util.*;
 
+package Sintactico;
+
+import java.util.*;
+import java.io.*;
+import Lexico.Symbol;
 import Lexico.Token;
 import Lexico.TokenType;
 
@@ -9,209 +12,99 @@ public class Parser {
     private int current = 0;
     private final StringBuilder errores = new StringBuilder();
     private boolean hayErrores = false;
+    private final List<Symbol> tablaSimbolos = new ArrayList<>();
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    public boolean parse() {
-        try {
-            P(); // punto de entrada
-            Token t = peek();
-            if (t.type != TokenType.finFich) {
-                error(t, "Se esperaban más sentencias o fin de fichero");
-            }
-        } catch (Exception e) {
-            hayErrores = true;
-        }
-
-        return !hayErrores;
-    }
-
-    public String getErrores() {
-        return errores.toString();
-    }
-
-	private void F() {
-		consume(TokenType.PRfun, "Se esperaba 'function'");
-		F2(); // tipo devuelto
-		consume(TokenType.id, "Se esperaba nombre de función");
-		consume(TokenType.parenIzq, "Falta '(' en cabecera de función");
-		if (!check(TokenType.parenDcha)) {
-			Z(); // parámetros
-		}
-		consume(TokenType.parenDcha, "Falta ')' en cabecera de función");
-		consume(TokenType.llaveIzq, "Falta '{' en cuerpo de función");
-		C(); // cuerpo
-		consume(TokenType.llaveDcha, "Falta '}' al final de función");
-	}
-
-	private void F2() {
-		if (!(match(TokenType.PRint) || match(TokenType.PRboolean) ||
-			  match(TokenType.PRstring) || match(TokenType.PRvoid))) {
-			error(peek(), "Tipo de retorno no válido");
-		}
-	}
-
-	private void Z() {
-		T();
-		consume(TokenType.id, "Falta identificador de parámetro");
-		while (match(TokenType.coma)) {
-			T();
-			consume(TokenType.id, "Falta identificador de parámetro");
-		}
-	}
-
-	private void X() {
-		if (!check(TokenType.puntoComa)) {
-			E(); // hay una expresión antes de ;
-		}
-	}
-	
-
-    // ------------------ P -> B P | F P | λ ------------------
-    private void P() {
+    public ASTNode parseAST() {
+        ASTNode root = new ASTNode("P");
         while (match(TokenType.PRvar, TokenType.PRif, TokenType.id, TokenType.PRfor, TokenType.PRoutput, TokenType.PRfun)) {
-            if (check(TokenType.PRvar) || check(TokenType.PRif) || check(TokenType.id) || check(TokenType.PRfor) || check(TokenType.PRoutput)) {
-                B();
-            } else if (check(TokenType.PRfun)) {
-                F();
-            }
-        }
-    }
-
-    // ------------------ B -> if ( E ) S | var T id ; | S | for (...) { C } ------------------
-    private void B() {
-        if (match(TokenType.PRif)) {
-            consume(TokenType.parenIzq, "Se esperaba '(' después de 'if'");
-            E();
-            consume(TokenType.parenDcha, "Se esperaba ')' después de la condición");
-            S();
-        } else if (match(TokenType.PRvar)) {
-            T();
-            consume(TokenType.id, "Se esperaba un identificador");
-            consume(TokenType.puntoComa, "Falta ';' después de declaración");
-        } else if (check(TokenType.id) || check(TokenType.PRoutput) || check(TokenType.PRinput) || check(TokenType.PRreturn)) {
-            S();
-        } else if (match(TokenType.PRfor)) {
-            consume(TokenType.parenIzq, "Falta '(' después de 'for'");
-            F1();
-            consume(TokenType.puntoComa, "Falta ';' después de inicialización");
-            E();
-            consume(TokenType.puntoComa, "Falta ';' después de condición");
-            A();
-            consume(TokenType.parenDcha, "Falta ')' en la cabecera del 'for'");
-            consume(TokenType.llaveIzq, "Falta '{' en el 'for'");
-            C();
-            consume(TokenType.llaveDcha, "Falta '}' al final del 'for'");
-        } else {
-            error(peek(), "Sentencia no válida");
-            advance(); // intentar continuar
-        }
-    }
-
-    // ------------------ T -> int | boolean | string ------------------
-    private void T() {
-        if (!(match(TokenType.PRint) || match(TokenType.PRboolean) || match(TokenType.PRstring))) {
-            error(peek(), "Tipo no válido, se esperaba int, boolean o string");
-        }
-    }
-
-    // ------------------ S -> id = E ; | output E ; | input id ; | return X ; ------------------
-    private void S() {
-        if (match(TokenType.id)) {
-            if (match(TokenType.igual)) {
-                E();
-                consume(TokenType.puntoComa, "Falta ';' después de la asignación");
+            if (check(TokenType.PRfun)) {
+                root.addChild(F());
             } else {
-                error(previous(), "Se esperaba '=' después del identificador");
+                root.addChild(B());
             }
-        } else if (match(TokenType.PRoutput)) {
-            E();
-            consume(TokenType.puntoComa, "Falta ';' después de output");
-        } else if (match(TokenType.PRinput)) {
-            consume(TokenType.id, "Se esperaba un identificador en input");
-            consume(TokenType.puntoComa, "Falta ';' después de input");
-        } else if (match(TokenType.PRreturn)) {
-            if (!check(TokenType.puntoComa)) {
-                X();
-            }
-            consume(TokenType.puntoComa, "Falta ';' después de return");
-        } else {
-            error(peek(), "Sentencia no válida");
-            advance();
         }
+        return root;
     }
 
-    // ------------------ E, R, U, V (expresiones lógicas y aritméticas) ------------------
-    private void E() {
-        R();
-        while (match(TokenType.opAnd)) R();
-    }
-
-    private void R() {
-        U();
-        while (match(TokenType.opIgual)) U();
-    }
-
-    private void U() {
-        V();
-        while (match(TokenType.opSuma)) V();
-    }
-
-    private void V() {
-        if (match(TokenType.id)) {
-            if (match(TokenType.opIncremen)) return;
-            if (match(TokenType.parenIzq)) {
-                if (!check(TokenType.parenDcha)) L();
-                consume(TokenType.parenDcha, "Falta ')' en llamada a función");
-            }
-        } else if (match(TokenType.entero) || match(TokenType.cadena) || match(TokenType.True) || match(TokenType.False)) {
-            return;
-        } else if (match(TokenType.parenIzq)) {
-            E();
-            consume(TokenType.parenDcha, "Falta ')' en expresión");
-        } else {
-            error(peek(), "Expresión no válida");
-            advance();
+    private ASTNode F() {
+        ASTNode node = new ASTNode("F");
+        consume(TokenType.PRfun, "Se esperaba 'function'");
+        node.addChild(new ASTNode("function"));
+        node.addChild(F2());
+        Token id = consume(TokenType.id, "Se esperaba nombre de función");
+        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+        consume(TokenType.parenIzq, "Falta '('");
+        if (!check(TokenType.parenDcha)) {
+            node.addChild(Z());
         }
+        consume(TokenType.parenDcha, "Falta ')'");
+        consume(TokenType.llaveIzq, "Falta '{'");
+        node.addChild(C());
+        consume(TokenType.llaveDcha, "Falta '}'");
+        return node;
     }
 
-    private void L() {
-        E();
+    private ASTNode F2() {
+        if (match(TokenType.PRint)) return new ASTNode("int");
+        if (match(TokenType.PRboolean)) return new ASTNode("boolean");
+        if (match(TokenType.PRstring)) return new ASTNode("string");
+        if (match(TokenType.PRvoid)) return new ASTNode("void");
+        error(peek(), "Tipo de retorno no válido");
+        return new ASTNode("tipo_error");
+    }
+
+    private ASTNode Z() {
+        ASTNode node = new ASTNode("Z");
+        node.addChild(T());
+        Token id = consume(TokenType.id, "Falta identificador");
+        node.addChild(new ASTNode("id(" + id.lexeme + ")"));
         while (match(TokenType.coma)) {
-            E();
+            node.addChild(new ASTNode(","));
+            node.addChild(T());
+            Token id2 = consume(TokenType.id, "Falta identificador");
+            node.addChild(new ASTNode("id(" + id2.lexeme + ")"));
         }
+        return node;
     }
 
-    private void F1() {
-        if (match(TokenType.id)) {
-            if (match(TokenType.igual)) {
-                E();
-            } else {
-                error(peek(), "Se esperaba '=' después del identificador");
-            }
-        }
+    private ASTNode T() {
+        if (match(TokenType.PRint)) return new ASTNode("int");
+        if (match(TokenType.PRboolean)) return new ASTNode("boolean");
+        if (match(TokenType.PRstring)) return new ASTNode("string");
+        error(peek(), "Tipo no válido");
+        return new ASTNode("tipo_error");
     }
 
-    private void A() {
-        if (match(TokenType.id)) {
-            if (match(TokenType.opIncremen)) return;
-            else if (match(TokenType.igual)) {
-                E();
-            } else {
-                error(peek(), "Se esperaba '++' o '=' en actualización");
-            }
-        }
-    }
-
-    private void C() {
+    private ASTNode C() {
+        ASTNode node = new ASTNode("C");
         while (!check(TokenType.llaveDcha) && !isAtEnd()) {
-            B();
+            node.addChild(B());
         }
+        return node;
     }
 
-    // ------------------ Funciones de utilidades ------------------
+    private ASTNode B() {
+        ASTNode node = new ASTNode("B");
+        if (match(TokenType.PRvar)) {
+            node.addChild(new ASTNode("var"));
+            ASTNode tipo = T();
+            node.addChild(tipo);
+            Token id = consume(TokenType.id, "Se esperaba identificador");
+            node.addChild(new ASTNode("id(" + id.lexeme + ")"));
+            Symbol s = new Symbol(id.lexeme);
+            s.setTipo(tipo.toString());
+            tablaSimbolos.add(s);
+            consume(TokenType.puntoComa, "Falta ';'");
+        } else {
+            node.addChild(new ASTNode("sentencia"));
+        }
+        return node;
+    }
+
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
             if (check(type)) {
@@ -244,16 +137,27 @@ public class Parser {
         return tokens.get(current - 1);
     }
 
-    private void consume(TokenType type, String message) {
-        if (check(type)) {
-            advance();
-            return;
-        }
+    private Token consume(TokenType type, String message) {
+        if (check(type)) return advance();
         error(peek(), message);
+        return new Token(TokenType.finFich, "", peek().line, 0, 0);
     }
 
     private void error(Token token, String message) {
         hayErrores = true;
         errores.append("[ERROR - Línea ").append(token.line).append("]: ").append(message).append("\n");
+    }
+
+    public void exportarTS(String ruta) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(ruta));
+        for (int i = 0; i < tablaSimbolos.size(); i++) {
+            writer.write((i + 1) + ": " + tablaSimbolos.get(i).toString());
+            writer.newLine();
+        }
+        writer.close();
+    }
+
+    public String getErrores() {
+        return errores.toString();
     }
 }
