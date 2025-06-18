@@ -20,6 +20,11 @@ public class ASTNode {
         return label;
     }
 
+	public List<ASTNode> getChildren() {
+		return children;
+	}
+
+	
     public String toDotFile() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph AST {\n");

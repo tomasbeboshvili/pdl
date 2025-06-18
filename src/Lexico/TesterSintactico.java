@@ -7,7 +7,7 @@ import Sintactico.ASTNode;
 import java.io.*;
 import java.util.List;
 
-public class TesterSemantico {
+public class TesterSintactico {
     public static void main(String[] args) {
         try {
             File out = new File("salida_tests");

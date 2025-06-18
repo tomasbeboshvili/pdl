@@ -1,21 +1,21 @@
 #1:
 * LEXEMA : 'a'
 ATRIBUTOS:
-+ tipo : 'entero'
++ tipo : '-'
 + despl : 0
 ----------
 * LEXEMA : 'b'
 ATRIBUTOS:
-+ tipo : 'entero'
++ tipo : '-'
 + despl : 1
 ----------
 * LEXEMA : 'bbb'
 ATRIBUTOS:
-+ tipo : 'logico'
++ tipo : '-'
 + despl : 2
 ----------
 * LEXEMA : 'c'
 ATRIBUTOS:
-+ tipo : 'logico'
++ tipo : '-'
 + despl : 3
 ----------

@@ -4,25 +4,39 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "type": "java",
-            "name": "Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "LexerBatchTest",
-            "request": "launch",
-            "mainClass": "Lexico.LexerBatchTest",
-            "projectName": "pdl-1_2c0a8826"
-        },
-        {
-            "type": "java",
-            "name": "TesterSemantico",
-            "request": "launch",
-            "mainClass": "Lexico.TesterSemantico",
-            "projectName": "pdl-1_2c0a8826"
-        }
-    ]
+		{
+			"type": "java",
+			"name": "TesterSemantico",
+			"request": "launch",
+			"mainClass": "Semantico.TesterSemantico",
+			"projectName": "pdl_8e918301"
+		},
+		{
+			"type": "java",
+			"name": "TesterSemantico",
+			"request": "launch",
+			"mainClass": "Lexico.TesterSemantico",
+			"projectName": "pdl_8e918301"
+		},
+		{
+			"type": "java",
+			"name": "Current File",
+			"request": "launch",
+			"mainClass": "${file}"
+		},
+		{
+			"type": "java",
+			"name": "LexerBatchTest",
+			"request": "launch",
+			"mainClass": "Lexico.LexerBatchTest",
+			"projectName": "pdl-1_2c0a8826"
+		},
+		{
+			"type": "java",
+			"name": "TesterSemantico",
+			"request": "launch",
+			"mainClass": "Lexico.TesterSemantico",
+			"projectName": "pdl-1_2c0a8826"
+		}
+	]
 }
