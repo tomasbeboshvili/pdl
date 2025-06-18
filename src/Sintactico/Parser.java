@@ -17,22 +17,7 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-/* 
-    public ASTNode parseAST() {
-        ASTNode root = new ASTNode("P");
-        while (!isAtEnd()) {
-            if (check(TokenType.PRfun)) {
-                reglasAplicadas.add(2); // P -> F P
-                root.addChild(F());
-            } else {
-                reglasAplicadas.add(1); // P -> B P
-                root.addChild(B());
-            }
-        }
-        reglasAplicadas.add(3); // P -> λ
-        return root;
-    }
-        */
+
         public ASTNode parseAST() {
         ASTNode root = new ASTNode("P");
         while (!isAtEnd()) {

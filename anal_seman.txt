@@ -1,0 +1,66 @@
+Terminales = { &&  = == + id id++ ( ) ent cad false true , ; { } output input return if var int boolean string for function void lambda }
+NoTerminales = { A B C E E1 F H K L P P1 Q R R1 S S1 T U U1 V V1 X Z F1 F2 F3 F4 F5}
+
+Axioma = P
+Producciones = {
+    P1 -> P                             {TS := CreaTAbla(); despl := 0; zona_decl := true} P {zona_decl:= false; liberaTabla()}
+    P -> B P                            {P.tipo := if B.tipo = tipo_ok then P.tipo else tipo_error}
+    P -> F P                            {P.tipo := if F.tipo = tipo_ok then P.tipo else tipo_error}
+    P -> λ                              {P.tipo := void}
+    B -> var T id ;                     {añadeTipo(id.pos,T.tipo) ; AñadeDesp(id.pos,despl) ; despl := despl + T.tamaño}
+    T -> int                            {T.tipo := int}
+    T -> boolean                        {T.tipo := bool}
+    T -> string                         {T.tipo := string}
+
+    E -> R E1                           {E1.tipo := if R.tipo = bool then bool else void}
+    E1 -> && R E1                       {E1.tipo := if R.tipo = E1.tipo = bool then bool else tipo_error}
+    E1 -> λ                             {E1.tipo := void}
+    R -> U R1                           {R1.tipo := if U.tipo = bool then bool else void}
+    R1 -> == U R1                       {R1.tipo := if U.tipo = R1.tipo = bool then bool else tipo_error}
+    R1 -> λ                             {R1.tipo := void}
+    U -> V U1                           {U1.tipo := V.tipo}
+    U1 -> + V U1                        {U1.tipo := V.tipo}
+    U1 -> λ                             {U1.tipo := void}
+    V -> id                             {V.tipo := BuscaTipo(id.pos)}
+    V -> id ++                          {V.tipo := if (BuscaTipo(id.pos) = int then int else tipo_error)}
+    V -> id ( L )                       {V.tipo := if (BuscaTipo(id.pos) = fun and buscaTipoParametros(id.pos) = L.tipo then fun else tipo_error)}
+    V -> ( E )                          {V.tipo := E.tipo}
+    V -> ent                            {V.tipo := int}
+    V -> cad                            {V.tipo := string}
+    V -> true                           {V.tipo := bool}
+    V -> false                          {V.tipo := bool}
+    L -> E Q                            {L.tipo := E.tipo x Q.tipo}
+    L -> λ                              {Q.tipo := void}
+    Q -> , E Q                          {Q.tipo := E.tipo x Q.tipo}
+    Q -> λ                              {Q.tipo := void}
+    S -> id = E ;                       {S.tipo := if (BuscaTipo(id.pos) = E.tipo then tipo_ok else tipo_error)}
+    S -> id ( L ) ;                     {S.tipo := if (BuscaTipo(id.pos) = fun and buscaTipoParametros(id.pos) = L.tipo then tipo_ok else tipo_error)}
+    S -> output E ;                     {S.tipo := if (E.tipo = int or E.tipo = string then tipo_ok else tipo_error)}
+    S -> input id ;                     {S.tipo := if (BuscaTipo(id.pos) = int or BuscaTipo(id.pos) = string then tipo_ok else tipo_error)}
+    S -> S1 ;                           {S.tipo := if (S1.tipo != tipo_error then tipo_ok else tipo_error)}
+    S1 -> return X                      {S1.tipo := X.tipo}
+    X -> E                              {X.tipo := E.tipo}
+    X -> λ                              {X.tipo := void}
+    F1 -> id = E                        {F1.tipo := if BuscaTipo(id.pos) = E.tipo then tipo_ok else tipo_error}
+    F1 -> λ                             {F1.tipo := tipo_ok}
+    B -> if ( E ) S                     {B.tipo := if E.tipo = bool then S.tipo}
+    B -> S                              {B.tipo := S.tipo}
+    B -> for ( F1 ; E ; A ) { C }       {B.tipo := if (F1.tipo = A.tipo = tipo_ok and E.tipo = bool then C.tipo)}
+    A -> F1                             {A.tipo := F1.tipo}
+    A -> id++                           {A.tipo := if BuscaTipo(id.pos) = int then tipo_ok else tipo_error}
+    A -> λ                              {A.tipo := tipo_ok}
+    C -> B C                            {C.tipo := B.tipo}
+    C -> λ                              {C.tipo := tipo_ok}
+    F -> function F2 F3 F4 { C F5 }     {F.tipo := if (F2.tipo = F5.tipo and F3.tipo = fun and F4.tipo = tipo_ok) then C.tipo)}
+    F5 -> S1                            {F5.tipo := S1.tipo}
+    F5 -> λ                             {F5.tipo := void}
+    F2 -> H                             {F2.tipo := H.tipo}
+    F3 -> id                            {F3.tipo := BuscaTipo(id.pos)}
+    F4 -> ( Z )                         {F4.tipo := Z.tipo}
+    H -> T                              {H.tipo := T.tipo}
+    H -> void                           {H.tipo := void}
+    Z -> T id K                         {Z.tipo := if T.tipo = BuscaTipo(id.pos) then K.tipo}
+    Z -> void                           {Z.tipo := tipo_ok}
+    K -> , T id K                       {K.tipo := if T.tipo = BuscaTipo(id.pos) then K.tipo}
+    K -> λ                              {K.tipo := tipo_ok}
+}
