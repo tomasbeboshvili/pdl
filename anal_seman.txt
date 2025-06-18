@@ -60,7 +60,7 @@ Producciones = {
     H -> T                              {H.tipo := T.tipo}
     H -> void                           {H.tipo := void}
     Z -> T id K                         {Z.tipo := if T.tipo = BuscaTipo(id.pos) then K.tipo}
-    Z -> void                           {Z.tipo := tipo_ok}
+    Z -> λ                              {Z.tipo := tipo_ok}
     K -> , T id K                       {K.tipo := if T.tipo = BuscaTipo(id.pos) then K.tipo}
     K -> λ                              {K.tipo := tipo_ok}
 }
