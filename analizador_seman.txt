@@ -1,0 +1,56 @@
+    P1 -> P
+    P -> B P
+    P -> F P
+    P -> λ
+    B -> var T id ;
+    T -> int
+    T -> boolean
+    T -> string
+    F -> function H id ( Z ) { C F5 }
+    F5 -> S1
+    F5 -> λ
+    H -> T
+    H -> void
+    Z -> T id K
+    Z -> λ
+    K -> , T id K
+    K -> λ
+    E -> R E1
+    E1 -> && R E1
+    E1 -> λ
+    R -> U R1
+    R1 -> == U R1
+    R1 -> λ
+    U -> V U1
+    U1 -> + V U1
+    U1 -> λ
+    V -> id
+    V -> id ++
+    V -> id ( L )
+    V -> ( E )
+    V -> ent
+    V -> cad
+    V -> true
+    V -> false
+    L -> E Q
+    L -> λ
+    Q -> , E Q
+    Q -> λ
+    S -> id = E ;
+    S -> id ( L ) ;
+    S -> output E ;
+    S -> input id ;
+    S -> S1 ;
+    S1 -> return X
+    X -> E
+    X -> λ
+    F1 -> id = E
+    F1 -> λ
+    B -> if ( E ) S
+    B -> S
+    B -> for ( F1 ; E ; A ) { C }
+    A -> F1
+    A -> id++
+    A -> λ
+    C -> B C
+    C -> λ

@@ -9,6 +9,13 @@
 			"name": "TesterSintactico",
 			"request": "launch",
 			"mainClass": "Lexico.TesterSintactico",
+			"projectName": "pdl-2_2c0a8827"
+		},
+		{
+			"type": "java",
+			"name": "TesterSintactico",
+			"request": "launch",
+			"mainClass": "Lexico.TesterSintactico",
 			"projectName": "pdl_8e918301"
 		},
 		{
